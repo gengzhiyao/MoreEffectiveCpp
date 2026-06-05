@@ -1,0 +1,105 @@
+
+# 风格设置
+
+# LLVM  Google
+BasedOnStyle: Google
+
+# 强制花括号遵循 Allman 风格
+BreakBeforeBraces: Allman 
+
+Language: Cpp
+
+# 对齐设置
+
+# 对齐连续的宏定义
+AlignConsecutiveMacros: AcrossEmptyLinesAndComments
+
+# 开启连续声明的对齐
+AlignConsecutiveDeclarations: true
+
+#  对齐尾部注释
+AlignTrailingComments: Leave
+
+# 主体与「lambda签名」对齐
+LambdaBodyIndentation: Signature
+
+#运算符对齐
+AlignOperands: true
+
+# 保证参数列表对齐
+AlignAfterOpenBracket: Align       # 括号内参数对齐
+BinPackParameters: false           # 长参数强制换行
+BinPackArguments: false  
+BraceWrapping:
+  BeforeLambdaBody: false         # 配合 BeforeLambdaBody
+  AfterControlStatement: true
+  AfterFunction: true       
+
+# 缩进设置
+
+# 缩进设置
+IndentWidth: 4  # 使用4个空格缩进
+
+#自动排版注释
+ReflowComments: true
+ 
+# 访问修饰符偏移 
+AccessModifierOffset: -4 # -4就是public顶格
+
+# 构造函数初始化列表缩进
+ConstructorInitializerIndentWidth: 4
+
+# 换行设置
+
+# 控制每行最大空行数（避免空行过多）
+MaxEmptyLinesToKeep: 1
+
+# 构造函数初始化列表在冒号前换行
+BreakConstructorInitializers: BeforeColon
+# 每个初始化项独占一行
+PackConstructorInitializers: Never    
+
+# 允许短函数在单行上
+#AllowShortFunctionsOnASingleLine: Inline
+
+ # 允许短语法块在单行上
+AllowShortBlocksOnASingleLine: Empty
+
+# 总是把短语句放在单行上
+AllowShortIfStatementsOnASingleLine: WithoutElse
+
+# 允许短匿Lambda函数在单行上
+AllowShortLambdasOnASingleLine: All
+
+# 允许合并短循环到单行上
+AllowShortLoopsOnASingleLine: true
+
+#大括号开头不保留空行
+KeepEmptyLinesAtTheStartOfBlocks: false
+
+# 控制行宽，避免行太长
+ColumnLimit: 200
+
+NamespaceIndentation: None		#命名空间不缩进
+FixNamespaceComments: true		#自动给 namespace 加结束注释
+
+#头文件自动排序、自动分组
+#IncludeBlocks: Regroup
+SortIncludes: Never
+
+# 空格设置
+ 
+# 控制空格和标点符号风格
+SpaceBeforeParens: ControlStatements  # 控制语句的括号前有空格
+SpaceBeforeAssignmentOperators: true  # 赋值操作符前插入空格
+
+# 函数括号内侧添加空格
+SpacesInParens: Custom
+SpacesInParensOptions:
+  InConditionalStatements: true       # if/for/while 括号内加空格
+  InCStyleCasts: true                 # C风格强转括号内加空格
+  InEmptyParentheses: true            # 空括号也加空格 foo( )
+  Other: true                         # 函数声明和调用括号内加空格 foo( a, b )
+
+# 注释前保留4个空格
+SpacesBeforeTrailingComments: 4
