@@ -2,4 +2,5 @@ cmake_minimum_required(VERSION 3.10)
 
 project(MoreEffectiveCpp)
 
-add_subdirectory(Item25)    #将 constructor 和 non-member functions 虚化
+add_subdirectory(Item25)    # 将 constructor 和 non-member functions 虚化
+add_subdirectory(Item26)    # 限制某个类所能产生的对象的数量
