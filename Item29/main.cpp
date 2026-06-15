@@ -114,13 +114,28 @@ public:
           shareable( true )
     {
     }   // 为什么 refCount 初始化为0？
-    RCObject( const RCObject& rhs )
+    RCObject( const RCObject& rhs ) // 拷贝构造的语义是创建一个全新独立的值对象，新对象引用计数强制初始化为 0，完全独立于源对象。
         : refCount( 0 ),
           shareable( true )
     {
     }    // 为什么 refCount 初始化为 0？
-    RCObject& operator=( const RCObject& rhs ) { return *this; }  // 为什么什么也不做？看着好像不对劲。
-    virtual ~RCObject( ) = 0;   // 析构函数纯虚，表示只被用于作为基类
+    // 为什么不适用默认的拷贝赋值？默认合成的拷贝赋值运算符会将 RCObject 中的数据成员逐个拷贝，这意味这，当误写 sv1 = sv2 时，sv1 的引用计数也会被拷贝，原本的 sv1 引用计数不减，拷贝后的引用计数不增。
+    // 为什么不设为 private？如果基类把 operator= 设为 private，派生类无法重载覆盖赋值运算符，未来若某个派生自RCObject的类确实需要支持实例间赋值（书中提及的扩展场景），私有赋值会直接锁死扩展能力
+    // 假设一些类在将来可能从RCObject派生出来，并希望允许被引用计数的值被赋值，RCObject的赋值运算符并没有实现更改值而不更改引用计数的情况
+    // 这是因为：未来某个派生类需要支持实例赋值，全部逻辑由派生类自己重载operator=实现，基类空实现不会干扰它，基类没有权限、也没有能力去拷贝派生类独有的业务内容。
+
+    /** RCObject 的两个成员 refCount、shareable 完全保持 this 对象自身原来的值，不会复制 rhs 的 refCount/shareable
+     * StringValue& StringValue::operator=(const StringValue& rhs) {
+     * if (this == &rhs) return *this;
+     * delete[] data;
+     * size_t len = strlen(rhs.data);
+     * data = new char[len + 1];
+     * strcpy(data, rhs.data);
+     * return *this;// 无任何父类赋值调用 RCObject::operator=() 全程没有执行，空函数逻辑不会跑一遍
+     * } 贴合原文设计意图：底层值对象互相拷贝内容时，引用计数不受干扰
+     */
+    RCObject& operator=( const RCObject& rhs ) { return *this; }    // 为什么什么也不做？看着好像不对劲。
+    virtual ~RCObject( ) = 0;    // 析构函数纯虚，表示只被用于作为基类
     void addRef( ) { ++refCount; }
     void removeRef( )
     {
@@ -134,10 +149,11 @@ private:
     int  refCount;
     bool shareable;
 };
-RCObject::~RCObject( ) = default; // 析构函数即便纯虚，也要实现出来
+RCObject::~RCObject( ) = default;    // 析构函数即便纯虚，也要实现出来
 
 //*===================================================RCPtr==================================================*
 
+// RCPtr 作为自动引用计数的类存在，T 代表实际需要被引用计数的类型
 template <typename T>
 class RCPtr
 {
@@ -260,5 +276,140 @@ void RCString::StringValue::init( const char* initValue )
     strcpy( data, initValue );
 }
 
+#pragma endregion
+
+#pragma region Add ReferenceCounting to the library
+
+//*===================================================RCIPtr==================================================*
+template <typename T>
+class RCIPtr
+{
+public:
+    RCIPtr( T* realPtr = 0 );
+    RCIPtr( const RCIPtr& rhs );
+    ~RCIPtr( );
+    RCIPtr&  operator=( const RCIPtr& rhs );
+    const T* operator->( ) const;
+    T*       operator->( );
+    const T& operator*( ) const;
+    T&       operator*( );
+
+private:
+    struct CountHolder : public RCObject
+    {
+        ~CountHolder( ) { delete pointee; }
+        T* pointee;
+    };
+    CountHolder* counter;
+    void         init( );
+    void         makeCopy( );
+};
+
+template <typename T>
+void RCIPtr<T>::init( )
+{
+    if ( counter->isShareable( ) == false )
+    {
+        T* oldValue = counter->pointee;
+        counter = new CountHolder;
+        counter->pointee = new T( *oldValue );
+    }
+    counter->addRef( );
+}
+
+template <typename T>
+RCIPtr<T>::RCIPtr( T* realPtr )
+    : counter( new CountHolder )
+{
+    counter->pointee = realPtr;
+    init( );
+}
+
+template <typename T>
+RCIPtr<T>::RCIPtr( const RCIPtr& rhs )
+    : counter( rhs.counter )
+{
+    init( );
+}
+
+template <typename T>
+RCIPtr<T>::~RCIPtr( )
+{
+    counter->removeRef( );
+}
+
+template <typename T>
+RCIPtr<T>& RCIPtr<T>::operator=( const RCIPtr& rhs )
+{
+    if ( counter != rhs.counter )
+    {
+        counter->removeRef( );
+        counter = rhs.counter;
+        init( );
+    }
+    return *this;
+}
+
+template <typename T>
+const T* RCIPtr<T>::operator->( ) const
+{
+    return counter->pointee;
+}
+
+template <typename T>
+const T& RCIPtr<T>::operator*( ) const
+{
+    return *( counter->pointee );
+}
+
+template <typename T>
+void RCIPtr<T>::makeCopy( )
+{
+    if ( counter->isShared( ) )
+    {
+        T* oldValue = counter->pointee;
+        counter->removeRef( );
+        counter = new CountHolder;
+        counter->pointee = new T( *oldValue );
+        counter->addRef( );
+    }
+}
+
+template <typename T>
+T* RCIPtr<T>::operator->( )    // COW
+{
+    makeCopy( );
+    return counter->pointee;
+}
+
+template <typename T>
+T& RCIPtr<T>::operator*( )    // COW
+{
+    makeCopy( );
+    return *( counter->pointee );
+}
+
+class Widget    // 作为程序库中不可更改的类存在
+{
+public:
+    Widget( int size );
+    void doThis( );
+    int  showThat( ) const;
+};
+
+//*===================================================RCWidget==================================================*
+class RCWidget
+{
+public:
+    RCWidget( int size )
+        : value( new Widget( size ) )
+    {
+    }
+    void doThis( ) { value->doThis( ); }
+    void showThat( ) const { value->showThat( ); }
+
+private:
+    RCIPtr<Widget> value;
+};
 #pragma endregion
 int main( ) { return 0; }
