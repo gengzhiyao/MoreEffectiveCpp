@@ -2,13 +2,34 @@
 
 /**
  * ! 智能指针
- *
+ * 智能指针由 *模板* 产生出来，由于其像内建的指针一样，所以它必须有强烈的类型相关性，并且需要作者指定其是否应该存在拷贝、赋值的行为
+ * 智能指针的基本实现如 region SimpleImplementationOfSmartPointers
+ * 其使用全貌如 Appetizers ，意即：智能指针的使用应该和裸指针一样，其实现了 operator-> 和 operator*
+ * 1. 智能指针的构造、赋值和析构
+ * 作者需要控制智能指针是否需要拷贝以及赋值，并控制拷贝和赋值时，程序执行的逻辑；对于构造来说，可以要求构造时传参，也可以在使用时判断
+ * 2. 智能指针的解引用与成员访问
+ * 解引用操作符返回值必须是引用，如果返回值，那么会：(1) 多态失效 (2) 对象切片 (3) 生成新对象，低效和 UB
+ * 成员访问操作符一般情况下直接返回对应的裸指针形式 T*
+ * 3. 测试智能指针是否为 nullptr
+ * (1) 智能指针类内提供 operator void* ：会使风马牛不相及的两个指针判等操作编译通过，运行期一直返回 false
+ * (2) 提供 operator! 无用 鸡肋，在比较时仍然报错
+ * 4. 提供返回裸指针的方法
+ * (1) 直接在智能指针类的内部提供一个隐式类型转换操作符重载 operator T*()，直接解决了测试智能指针是否为 nullptr 的问题，但隐式类型转换非常隐蔽，其提供了对外获取指针 Handle 的接口，可以被保存并 delete
+ * (2) 向标准库学习，提供接口获取裸指针
+ * 5. 在继承体系下，智能指针的类型转换
+ * (1) 由于智能指针采用模板实现，所以不同的模板参数实例化出来的智能指针类型不一致，智能指针之间并不存在继承关系，因此不存在如裸指针一样的隐式类型转换
+ * (2) 不切实际的方法：实例化继承体系中的类，并在其中添加向基类智能指针的隐式转换函数
+ *      不仅违反开闭原则，而且在继承体系中，需要在继承谱中为每个类都添加隐式转换函数，而且是*直接的*隐式转换，因为简介的隐式转换编译器需要做两次转换，但在编译时，只能有一次用户自定义的隐式转换
+ * (3)
+ * 利用成员函数模板，在类模板中添加成员函数模板，在模板匹配时，自动推导成员函数模板的模板参数，该方法利用到了裸指针在继承体系中的隐式转换。该方法虽好，但是在实例化期间，继承体系复杂时，可能存在多个合法的模板匹配，造成二义性
+ * 6. 智能指针与 const 不期而遇
+ * 智能指针与 const 之间的问题犹如继承体系，同样是由于类型不一致造成的，但这对于裸指针来说，却是非常常见的。具体见下吧。
  */
 
 #define USE_INHERITANCE
 // #define USE_MODERN_SFINAE
 
-#pragma region Simple implementation of smart pointers
+#pragma region SimpleImplementationOfSmartPointers
 template <typename T>
 class SmartPtr
 {
@@ -47,19 +68,18 @@ private:
 };
 #pragma endregion
 
-#pragma region Appetizers
+#pragma region Appetizers // 开胃菜
 // 本段作用：目的是让你直观看到——智能指针在使用语法上和裸指针一模一样，但背后可以偷偷干很多裸指针干不了的事
 template <typename T>
 class DBPtr
 {
 };
-
 class Tuple
 {
     // 作用：绑定数据库里的一条记录
 };
 
-// DBPtr<Tuple>，表示"指向某条数据库记录的智能指针"。
+// DBPtr<Tuple>，表示"指向某条数据库记录的智能指针"。 Raw: Tuple* ptr = new Tuple;
 
 // logEntry（记日志）这部分，是用来回答"那智能指针到底比裸指针强在哪"的——它展示了裸指针做不到、而智能指针能透明完成的"幕后工作"。
 // 你没法让一个 Tuple* 在每次被解引用时自动写日志，但智能指针可以，因为它能重载 operator->、operator*，在这些操作里塞进任意逻辑。而这一切对客户完全透明——语法还是 pt->method()。
@@ -76,7 +96,7 @@ public:
 
 #pragma endregion
 
-// Notion: auto_ptr 相关的知识过时...
+// Notion: auto_ptr 相关的知识过时... 现在完全采用 unique_ptr
 
 #pragma region Dereference && operator->
 
@@ -133,6 +153,32 @@ void displayAndPlay( const SmartPtr<MusicProduct>& pmp, int howMany )
 
 #pragma endregion
 
+#pragma region SmartPointer && Const
+
+// const CD* = CD* 这种赋值方式可以，但智能指针不行，因为类型不一致
+// SmartPtr<const CD> SmartPtr<CD> 不是一个类型，赋值会编译报错
+
+template <typename T>
+class SmartPtrToConst
+{
+public:
+    //... functions...
+protected:
+    union
+    {
+        const T* constPointee;
+        T*       pointee;
+    };
+};
+
+template <typename T>
+class SmartPointer : public SmartPtrToConst<T>
+{
+public:
+};
+
+#pragma endregion
+
 int main( )
 {
 #ifdef USE_INHERITANCE
@@ -147,9 +193,10 @@ int main( )
     // Q: 是 SFINAE 吗？
     //! 核心机制不是 SFINAE。这里发生的是一次普通的"模板实例化失败 → 硬错误（hard error）"，而不是 SFINAE 的"悄悄剔除候选 → 当作没看见"
     // 两者的区别正好卡在一个关键点上：失败发生在哪一步。
-    //! SFINAE的成立有个严格前提：替换失败必须发生在**函数签名（immediate context，即直接上下文）**里——模板参数、返回类型、形参类型这些地方。只有这个区域的替换失败，才会被"原谅"，把候选函数从重载集里默默剔除。
-    // 这里的失败发生在函数体里，不受 SFINAE 保护——它是一个编译错误，编译器不会"当没看见"然后去找别的候选，而是直接报错停下。所以这是：签名替换成功 → 候选被选中 → 实例化函数体 → 体内失败 → hard error。这条路径和 SFINAE 没关系。
-    // 现代写法常常主动把这个约束提到签名里，让它真正变成 SFINAE / 概念约束，从而既挡住非法转换、又给出干净的错误，还能正确参与重载决议
+    //! SFINAE的成立有个严格前提：替换失败必须发生在**函数签名（immediate
+    //! context，即直接上下文）**里——模板参数、返回类型、形参类型这些地方。只有这个区域的替换失败，才会被"原谅"，把候选函数从重载集里默默剔除。
+    // 这里的失败发生在函数体里，不受 SFINAE 保护——它是一个编译错误，编译器不会"当没看见"然后去找别的候选，而是直接报错停下。所以这是：签名替换成功 → 候选被选中 → 实例化函数体 → 体内失败 → hard
+    // error。这条路径和 SFINAE 没关系。 现代写法常常主动把这个约束提到签名里，让它真正变成 SFINAE / 概念约束，从而既挡住非法转换、又给出干净的错误，还能正确参与重载决议
 #endif
     return 0;
 }
