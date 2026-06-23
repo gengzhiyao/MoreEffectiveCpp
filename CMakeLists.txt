@@ -2,10 +2,10 @@ cmake_minimum_required(VERSION 3.10)
 
 project(MoreEffectiveCpp)
 
-add_subdirectory(Item25) # ½« constructor ºÍ non-member functions Ğé»¯
-add_subdirectory(Item26) # ÏŞÖÆÄ³¸öÀàËùÄÜ²úÉúµÄ¶ÔÏóµÄÊıÁ¿
-add_subdirectory(Item27) # ÒªÇó»ò½ûÖ¹Ä³¸öÀà²úÉúÓÚ Heap ÖĞ
+add_subdirectory(Item25) # å°† constructor å’Œ non-member functions è™šåŒ–
+add_subdirectory(Item26) # é™åˆ¶æŸä¸ªç±»æ‰€èƒ½äº§ç”Ÿçš„å¯¹è±¡çš„æ•°é‡
+add_subdirectory(Item27) # è¦æ±‚æˆ–ç¦æ­¢æŸä¸ªç±»äº§ç”Ÿäº Heap ä¸­
 
-add_subdirectory(Item29) # ÒıÓÃ¼ÆÊı
+add_subdirectory(Item29) # å¼•ç”¨è®¡æ•°
 add_subdirectory(Item30) # Proxy Class
-add_subdirectory(Item31) # ÈÃº¯Êı¸ù¾İÒ»¸öÒÔÉÏµÄ¶ÔÏóÀàĞÍÀ´¾ö¶¨ÈçºÎĞé»¯
+add_subdirectory(Item31) # è®©å‡½æ•°æ ¹æ®ä¸€ä¸ªä»¥ä¸Šçš„å¯¹è±¡ç±»å‹æ¥å†³å®šå¦‚ä½•è™šåŒ–

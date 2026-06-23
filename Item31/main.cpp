@@ -4,12 +4,12 @@
 #include <variant>
 
 /**
- * @brief ÈÃº¯Êı¸ù¾İÒ»¸öÒÔÉÏµÄ¶ÔÏóÀàĞÍÀ´¾ö¶¨ÈçºÎĞé»¯
- * 1. Ê¹ÓÃ RTTI ½áºÏĞéº¯Êı»úÖÆ USE_RTTI_VIRTUAL_FUNCTION
- * 2. Ê¹ÓÃĞéº¯Êı»úÖÆ USE_VIRTUAL_FUNCTION_ONLY
- * 3. ×ÔĞĞ·ÂÕæĞéº¯Êı±í USE_SIMULATE_VIRTUAL_TABLE
- *    ÖØµãÔÚÓÚ£ºÈçºÎ¹¹½¨ÕâÑùÒ»¸öĞéº¯Êı±íÄØ£¿
- *    µ«¸Ã·½·¨ÈÔÈ»¾ßÓĞºÜ´óÈ±µã£ºµ±¼ÓÈëĞÂµÄÀàĞÍÊ±£¬»¹ÊÇĞèÒªÔÚÀàÖĞÌí¼ÓĞÂµÄĞéº¯Êı£¬Î¥·´¿ª±ÕÔ­Ôò£¬ºÍÏÈÇ°ÌÖÂÛÒ»ÖÂ
+ * @brief è®©å‡½æ•°æ ¹æ®ä¸€ä¸ªä»¥ä¸Šçš„å¯¹è±¡ç±»å‹æ¥å†³å®šå¦‚ä½•è™šåŒ–
+ * 1. ä½¿ç”¨ RTTI ç»“åˆè™šå‡½æ•°æœºåˆ¶ USE_RTTI_VIRTUAL_FUNCTION
+ * 2. ä½¿ç”¨è™šå‡½æ•°æœºåˆ¶ USE_VIRTUAL_FUNCTION_ONLY
+ * 3. è‡ªè¡Œä»¿çœŸè™šå‡½æ•°è¡¨ USE_SIMULATE_VIRTUAL_TABLE
+ *    é‡ç‚¹åœ¨äºï¼šå¦‚ä½•æ„å»ºè¿™æ ·ä¸€ä¸ªè™šå‡½æ•°è¡¨å‘¢ï¼Ÿ
+ *    ä½†è¯¥æ–¹æ³•ä»ç„¶å…·æœ‰å¾ˆå¤§ç¼ºç‚¹ï¼šå½“åŠ å…¥æ–°çš„ç±»å‹æ—¶ï¼Œè¿˜æ˜¯éœ€è¦åœ¨ç±»ä¸­æ·»åŠ æ–°çš„è™šå‡½æ•°ï¼Œè¿åå¼€é—­åŸåˆ™ï¼Œå’Œå…ˆå‰è®¨è®ºä¸€è‡´
  */
 
 #pragma region MacroDefinition
@@ -23,12 +23,12 @@
 class GameObject;
 void ProcessCollision( GameObject& obj, GameObject& obj2 )
 {
-    // ÎÊÌâÊÇ£ºÈçºÎ¸ù¾İobjºÍobj2µÄÀàĞÍÀ´ÅĞ¶Ï·¢ÉúÅö×²µÄ¶ÔÏóµÄÊµ¼ÊÀàĞÍÊÇÊ²Ã´£¿£¿£¿
-    // Ïë·¨ÊÇÊ¹ÓÃ RTTI ½áºÏĞéº¯Êı»úÖÆ
+    // é—®é¢˜æ˜¯ï¼šå¦‚ä½•æ ¹æ®objå’Œobj2çš„ç±»å‹æ¥åˆ¤æ–­å‘ç”Ÿç¢°æ’çš„å¯¹è±¡çš„å®é™…ç±»å‹æ˜¯ä»€ä¹ˆï¼Ÿï¼Ÿï¼Ÿ
+    // æƒ³æ³•æ˜¯ä½¿ç”¨ RTTI ç»“åˆè™šå‡½æ•°æœºåˆ¶
 }
 #pragma endregion
 
-#ifdef USE_VIRTUAL_FUNCTION_ONLY    // ½« double dispatch ÒÔÁ½¸ö single dispatch ÊµÏÖ
+#ifdef USE_VIRTUAL_FUNCTION_ONLY    // å°† double dispatch ä»¥ä¸¤ä¸ª single dispatch å®ç°
 class SpaceShip;
 class SpaceStation;
 class Asteroid;
@@ -42,7 +42,7 @@ class Asteroid;
 
 class GameObject
 {
-    // ... ÄÚº¬´¿Ğéº¯Êı£¬×÷Îª³éÏó´¿Ğé»ùÀà£¬²»¿ÉÊµÀı»¯
+    // ... å†…å«çº¯è™šå‡½æ•°ï¼Œä½œä¸ºæŠ½è±¡çº¯è™šåŸºç±»ï¼Œä¸å¯å®ä¾‹åŒ–
 #ifdef USE_RTTI_VIRTUAL_FUNCTION
 public:
     virtual void collide( GameObject& otherObject ) = 0;
@@ -50,7 +50,7 @@ public:
 
 #ifdef USE_VIRTUAL_FUNCTION_ONLY
 public:
-    // collide ±»ÖØÔØ£¬Ã¿Ò»¸ö°æ±¾¶ÔÓ¦¼Ì³ĞÌåÏµÖĞµÄÒ»¸ö
+    // collide è¢«é‡è½½ï¼Œæ¯ä¸€ä¸ªç‰ˆæœ¬å¯¹åº”ç»§æ‰¿ä½“ç³»ä¸­çš„ä¸€ä¸ª
     virtual void collide( GameObject& otherObject ) = 0;
     virtual void collide( SpaceShip& otherObject ) = 0;
     virtual void collide( SpaceStation& otherObject ) = 0;
@@ -63,7 +63,7 @@ public:
 #endif
 };
 
-class SpaceShip /*SpaceStation¡¢Asteroid*/ : public GameObject
+class SpaceShip /*SpaceStationã€Asteroid*/ : public GameObject
 {
 #ifdef USE_RTTI_VIRTUAL_FUNCTION
 public:
@@ -75,14 +75,14 @@ public:
             // process SpaceShip collide with SpaceShip
         }
         else /*if(type == typeid( SpaceStation ))*/
-        {// .......ÆäËû else ·ÖÖ§
+        {// .......å…¶ä»– else åˆ†æ”¯
         }
     }
 #endif
 
 #ifdef USE_VIRTUAL_FUNCTION_ONLY
 public:
-    // collide ±»ÖØÔØ£¬Ã¿Ò»¸ö°æ±¾¶ÔÓ¦¼Ì³ĞÌåÏµÖĞµÄÒ»¸ö
+    // collide è¢«é‡è½½ï¼Œæ¯ä¸€ä¸ªç‰ˆæœ¬å¯¹åº”ç»§æ‰¿ä½“ç³»ä¸­çš„ä¸€ä¸ª
     virtual void collide( GameObject& otherObject ) override { otherObject.collide( *this ); };
     virtual void collide( SpaceShip& otherObject ) override { /* process SpaceShip collide with SpaceShip */ };
     virtual void collide( SpaceStation& otherObject ) override { /* process SpaceShip collide with SpaceStation */ };
@@ -93,7 +93,7 @@ public:
     using HitFunctionPtr = void ( SpaceShip::* )( GameObject& );
     using HitMap = std::map<std::string, HitFunctionPtr>;
 
-    static HitMap initCollisionMap( )   //! ÖØµã£ºÈçºÎ¹¹½¨ÕâÑùÒ»¸öÄ£ÄâµÄĞéº¯Êı±íÄØ£¿
+    static HitMap initCollisionMap( )   //! é‡ç‚¹ï¼šå¦‚ä½•æ„å»ºè¿™æ ·ä¸€ä¸ªæ¨¡æ‹Ÿçš„è™šå‡½æ•°è¡¨å‘¢ï¼Ÿ
     {
         static HitMap hm;
         hm[typeid( SpaceShip ).name( )] = &hitSpaceShip;
@@ -101,10 +101,10 @@ public:
         // hm[ typeid( Asteroid ).name( ) ] = &hitAsteroid;
         return hm;
     }
-    // Notion: Optimization£ºreturn pointer to HitMap instead of HitMap to avoid copying
-    static HitFunctionPtr lookup( const GameObject& whatWeHit )    // Ä¿±ê£º¸ø¶¨Ò»¸ö GameObject ¶ÔÏó£¬·µ»Ø¶ÔÓ¦µÄ³ÉÔ±º¯ÊıÖ¸Õë
+    // Notion: Optimizationï¼šreturn pointer to HitMap instead of HitMap to avoid copying
+    static HitFunctionPtr lookup( const GameObject& whatWeHit )    // ç›®æ ‡ï¼šç»™å®šä¸€ä¸ª GameObject å¯¹è±¡ï¼Œè¿”å›å¯¹åº”çš„æˆå‘˜å‡½æ•°æŒ‡é’ˆ
     {
-        // static HitMap collisionMap;     // ÓÃÀ´½«Ò»¸öÒÔ×Ö·û´®³ÊÏÖµÄÀà£¬¶ÔÓ¦µ½ SpaceShip ÀàµÄ³ÉÔ±º¯ÊıÖ¸Õë
+        // static HitMap collisionMap;     // ç”¨æ¥å°†ä¸€ä¸ªä»¥å­—ç¬¦ä¸²å‘ˆç°çš„ç±»ï¼Œå¯¹åº”åˆ° SpaceShip ç±»çš„æˆå‘˜å‡½æ•°æŒ‡é’ˆ
         static HitMap collisionMap = initCollisionMap( );
         auto          mapEntry = collisionMap.find( typeid( whatWeHit ).name( ) );
         if ( mapEntry == collisionMap.end( ) )
@@ -120,11 +120,11 @@ public:
         HitFunctionPtr hfp = lookup( otherObject );
         if ( hfp )
         {
-            ( this->*hfp )( otherObject );  // µ÷ÓÃ
+            ( this->*hfp )( otherObject );  // è°ƒç”¨
         }
         else
         {
-            throw std::runtime_error( "No hit function found for unknown object type" ); // Î´Öª GameObject ÀàĞÍ£¬Å×³öÒì³£
+            throw std::runtime_error( "No hit function found for unknown object type" ); // æœªçŸ¥ GameObject ç±»å‹ï¼ŒæŠ›å‡ºå¼‚å¸¸
         }
     }
     // virtual void hitSpaceShip( SpaceShip& otherObject ); // new virtual function
@@ -135,13 +135,13 @@ public:
 };
 
 #ifdef USE_NON_MEMBER_FUNCTION
-namespace   // ÄäÃûÃüÃû¿Õ¼ä£¬½ö¶Ô±¾·­Òëµ¥Ôª¿É¼û£¬ÀàËÆ static
+namespace   // åŒ¿åå‘½åç©ºé—´ï¼Œä»…å¯¹æœ¬ç¿»è¯‘å•å…ƒå¯è§ï¼Œç±»ä¼¼ static
 {
 void shipAsteroid( GameObject& ship, GameObject& asteroid ) {}
 void shipStation( GameObject& ship, GameObject& spaceStation ) {}
 void asteroidStation( GameObject& asteroid, GameObject& spaceStation ) {}
 
-void asteroidShip( GameObject& asteroid, GameObject& ship ) { /*shipAsteroid(ship, asteroid);*/ }   // ¶Ô³Æ´¦Àí
+void asteroidShip( GameObject& asteroid, GameObject& ship ) { /*shipAsteroid(ship, asteroid);*/ }   // å¯¹ç§°å¤„ç†
 // ......
 using HitFunctionPtr = void ( * )( GameObject&, GameObject& );
 using HitMap = std::map<std::pair<std::string, std::string>, HitFunctionPtr>;
@@ -177,7 +177,7 @@ void ProcessCollision( GameObject& ship, GameObject& otherObject )
     }
     else
     {
-        throw std::runtime_error( "No hit function found for unknown object type" ); // Î´Öª GameObject ÀàĞÍ£¬Å×³öÒì³£
+        throw std::runtime_error( "No hit function found for unknown object type" ); // æœªçŸ¥ GameObject ç±»å‹ï¼ŒæŠ›å‡ºå¼‚å¸¸
     }
 }
 
