@@ -11,3 +11,5 @@ add_subdirectory(Item28) # 智能指针
 add_subdirectory(Item29) # 引用计数
 add_subdirectory(Item30) # Proxy Class
 add_subdirectory(Item31) # 让函数根据一个以上的对象类型来决定如何虚化
+
+add_subdirectory(StubDemo)

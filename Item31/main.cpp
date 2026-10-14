@@ -10,6 +10,9 @@
  * 3. 自行仿真虚函数表 USE_SIMULATE_VIRTUAL_TABLE
  *    重点在于：如何构建这样一个虚函数表呢？
  *    但该方法仍然具有很大缺点：当加入新的类型时，还是需要在类中添加新的虚函数，违反开闭原则，和先前讨论一致
+ * 
+ * Double Dispatch: Visitor Pattern
+ * 虚函数的参数类型是某个类型的基类指针/引用，在该虚函数中，使用基类的指针/引用调用虚函数，实现根据一个以上的对象类型决定如何虚化
  */
 
 #pragma region MacroDefinition
